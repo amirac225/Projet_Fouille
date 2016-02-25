@@ -1,0 +1,29 @@
+#On reprend les données et on fait ce qui est demandé dans le sujet 
+prostateCancer = read.table("prostate.data",header=T)
+pro1 = prostateCancer[,-ncol(prostateCancer)]
+pro = as.data.frame(cbind(scale(pro1[,1:8]),pro1[,9]))
+names(pro) = names(pro1)
+
+#On trace les différents graphes nous permettant de faire sortir les potentielles corrélations entre l'ensemble des variables
+pairs(pro1[1:9], data = pro, main = "Potential correlation between variables", col = "blue",lower.panel=panel.smooth)
+
+#On récupére les coefficients de corrélations entre les différentes variables
+cor(pro)
+
+#Premiére régression linéaire sur lpsa en prenant en compte l'ensemble des predicteurs
+mylm<-lm(lpsa~lcavol+lweight+age+lbph+svi+lcp+factor(gleason)+pgg45, data = pro1)
+summary(mylm)
+
+#Deuxiéme regression linéaire en ne prenant pas en compte lcavol et svi
+mylm2<-lm(lpsa~lweight+age+lbph+lcp+factor(gleason)+pgg45, data = pro1)
+summary(mylm2)
+
+#Etude de l'impact des predicteurs qualitatifs :
+#ANOVA svi et gleason selon la methode "One-way ANOVA"
+anova(lm(lpsa~svi, data=pro))
+anova(lm(lpsa~gleason, data=pro))
+
+#ANOVA svi et gleason selon la methode "Two-way ANOVA"
+anova(lm(lpsa~svi+gleason, data=pro))
+
+
